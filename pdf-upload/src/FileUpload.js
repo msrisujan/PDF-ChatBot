@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import './upload.css'
+import './upload.css';
 
 function FileUpload({ setUploadComplete }) {
   const [files, setFiles] = useState([]);
   const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const onFileChange = (event) => {
@@ -21,6 +22,8 @@ function FileUpload({ setUploadComplete }) {
     const formData = new FormData();
     files.forEach((file) => formData.append('files', file));
 
+    setLoading(true);
+
     try {
       const response = await axios.post('http://localhost:5000/upload', formData, {
         headers: {
@@ -33,6 +36,8 @@ function FileUpload({ setUploadComplete }) {
     } catch (error) {
       setMessage(error.response ? error.response.data.error : 'An error occurred');
       setUploadComplete(false);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -45,9 +50,19 @@ function FileUpload({ setUploadComplete }) {
       <div className="FileUpload">
         <h1>Upload PDF Documents</h1>
         <input type="file" onChange={onFileChange} accept="application/pdf" multiple />
-        <button onClick={onFileUpload}>Upload</button>
+        <div className="file-previews">
+          {files.map((file, index) => (
+            <div key={index} className="file-preview">
+              {file.name}
+            </div>
+          ))}
+        </div>
+        <button onClick={onFileUpload} disabled={loading}>
+          {loading ? 'Uploading...' : 'Upload'}
+        </button>
         <p>{message}</p>
       </div>
+      {loading && <div className="loading-spinner">Loading...</div>}
     </div>
   );
 }
