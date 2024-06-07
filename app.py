@@ -65,6 +65,7 @@ def clear_upload_folder():
                 shutil.rmtree(file_path)
         except Exception as e:
             print(f'Failed to delete {file_path}. Reason: {e}')
+    app.config['PDF_FILENAMES'] = []
 
 @app.route('/upload', methods=['POST'])
 def upload_files():
