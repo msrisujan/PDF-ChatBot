@@ -4,6 +4,7 @@ from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 import time
+import shutil
 
 from langchain_groq import ChatGroq
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -53,8 +54,21 @@ def vector_embedding(directory):
     vectors = FAISS.from_documents(pages, embeddings)
     return vectors
 
+def clear_upload_folder():
+    folder = app.config['UPLOAD_FOLDER']
+    for filename in os.listdir(folder):
+        file_path = os.path.join(folder, filename)
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        except Exception as e:
+            print(f'Failed to delete {file_path}. Reason: {e}')
+
 @app.route('/upload', methods=['POST'])
 def upload_files():
+    clear_upload_folder()
     if 'files' not in request.files:
         return jsonify({"error": "No files part"}), 400
 
