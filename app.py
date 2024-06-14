@@ -111,10 +111,13 @@ def ask_question():
     response = retrieval_chain.invoke({'input': question})
     response_time = time.process_time() - start
 
+    answer = response['answer']
+    context = response["context"] if "The provided text does not contain any information" not in answer else None
+
     return jsonify({
-        "answer": response['answer'],
+        "answer": answer,
         "response_time": response_time,
-        "context": [{"source": doc.metadata["source"][8:], "page": int(doc.metadata["page"])+1} for doc in response["context"]]
+        "context": [{"source": doc.metadata["source"][8:], "page": int(doc.metadata["page"])+1} for doc in context] if context else None
     })
 
 @app.route('/get-pdf/<path:pdf_name>', methods=['GET'])

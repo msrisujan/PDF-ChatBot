@@ -90,7 +90,7 @@ function Chatbot() {
       const botMessage = {
         sender: 'bot',
         text: response.data.answer,
-        context: response.data.context,
+        context: response.data.context || null,
       };
       setChatHistory([...chatHistory, userMessage, botMessage]);
     } catch (error) {
